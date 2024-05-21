@@ -7,6 +7,8 @@ import { alpha, styled } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import { Add } from '@mui/icons-material';
+import UploadModels from './UploadModels';
+import { useState } from 'react';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -48,7 +50,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const Navbar = () => {
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const handleOpen = () => setModalOpen(true);
+    const handleClose = () => setModalOpen(false);
   return (
+    <>
     <AppBar position="static" sx={{ backgroundColor: 'black' }}>
       <Toolbar>
       <Typography variant="h6" noWrap sx={{ flexGrow: 0, color: 'red' }}>
@@ -63,11 +70,13 @@ const Navbar = () => {
             inputProps={{ 'aria-label': 'search' }}
           />
         </Search>
-        <Button  variant="contained" color="error" startIcon={<Add />} sx={{ color: 'white', ml: 'auto' ,mr:'70px'}}>
+        <Button  variant="contained" color="error" startIcon={<Add />} sx={{ color: 'white', ml: 'auto' ,mr:'70px'}} onClick={handleOpen}>
           Upload
         </Button>
       </Toolbar>
     </AppBar>
+    <UploadModels open={modalOpen} handleClose={handleClose} />
+   </>
   );
 };
 
