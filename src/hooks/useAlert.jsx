@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Snackbar, Alert as MuiAlert } from '@mui/material';
 
 const useAlert = () => {
   const [open, setOpen] = useState(false);
@@ -15,7 +16,20 @@ const useAlert = () => {
     setOpen(false);
   };
 
-  return { showAlert, hideAlert, message, severity, open };
+  const AlertComponent = () => (
+    <Snackbar
+      open={open}
+      autoHideDuration={6000}
+      onClose={hideAlert}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    >
+      <MuiAlert onClose={hideAlert} severity={severity} sx={{ width: '100%' }}>
+        {message}
+      </MuiAlert>
+    </Snackbar>
+  );
+
+  return { showAlert, AlertComponent };
 };
 
 export default useAlert;
