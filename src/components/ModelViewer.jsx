@@ -1,9 +1,10 @@
 /* eslint-disable react/no-unknown-property */
 import PropTypes from 'prop-types';
-import { Suspense } from 'react';
+// import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
-import { CircularProgress, Box } from '@mui/material';
+import { OrbitControls, Stage, useGLTF } from '@react-three/drei';
+import {  Box, CircularProgress } from '@mui/material';
+import { Suspense } from 'react';
 
 
 const Model = ({ url }) => {
@@ -12,7 +13,11 @@ const Model = ({ url }) => {
     if (node.isMesh)node.castShadow = true;
   });
 //   eslint-disable-next-line react/no-unknown-property
-  return <primitive object={scene} scale={0.4} />;
+return (
+    <Suspense fallback={<CircularProgress color="#4fa94d" />}>
+      <primitive object={scene} scale={0.8} />;
+    </Suspense>
+  );
 };
 
 Model.propTypes = {
@@ -31,13 +36,13 @@ const ModelViewer = ({ modelUrl }) => {
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} castShadow />
         <pointLight position={[-10, -10, -10]} />
         <OrbitControls />
-        <Suspense fallback={<CircularProgress />}>
+        <Stage environment={null}>
           <Model url={modelUrl} />
           <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
             <planeGeometry args={[10, 10]} />
             <shadowMaterial opacity={0.4} />
           </mesh>
-        </Suspense>
+          </Stage>
       </Canvas>
     </Box>
   );
