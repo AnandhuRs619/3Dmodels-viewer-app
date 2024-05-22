@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { Button, TextField, Modal, Box, Typography, IconButton } from '@mui/material';
-import { db } from '../db/FirebaseConfig';
+import { useState } from 'react';
+import { Button, TextField, Modal, Box, Typography, IconButton, CircularProgress } from '@mui/material';
+import { db, storage } from '../db/FirebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useDropzone } from 'react-dropzone';
 import CloseIcon from '@mui/icons-material/Close';
 import useAlert from '../hooks/useAlert';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import ModelPreview from './ModelPreview';
 
 const style = {
   position: 'absolute',
@@ -20,43 +20,11 @@ const style = {
   p: 4,
 };
 
-const ModelPreview = ({ file }) => {
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (containerRef.current && file.type === 'model/gltf-binary') {
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(400, 400);
-      containerRef.current.appendChild(renderer.domElement);
-
-      const loader = new GLTFLoader();
-      loader.load(URL.createObjectURL(file), (gltf) => {
-        scene.add(gltf.scene);
-        renderer.render(scene, camera);
-      });
-
-      const animate = () => {
-        requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-      };
-
-      animate();
-
-      return () => {
-        containerRef.current.removeChild(renderer.domElement);
-      };
-    }
-  }, [file]);
-
-  return <div ref={containerRef} style={{ width: '400px', height: '400px' }} />;
-};
-
 const UploadModels = ({ open, handleClose }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [modelFiles, setModelFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { showAlert, AlertComponent } = useAlert();
 
   const onDrop = (acceptedFiles) => {
@@ -71,20 +39,32 @@ const UploadModels = ({ open, handleClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      // Upload file metadata to Firestore
-        Promise.all(modelFiles.map(file => addDoc(collection(db, 'models'), {
-        name,
-        description,
-        modelUrl: file.name // Replace with actual URL after upload
-      })));
+      const uploadTasks = modelFiles.map(file => {
+        const storageRef = ref(storage, `models/${file.name}`);
+        return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+      });
+
+      const downloadURLs = await Promise.all(uploadTasks);
+
+      await Promise.all(downloadURLs.map((url, index) => {
+        return addDoc(collection(db, 'models'), {
+          name,
+          description,
+          modelUrl: url
+        });
+      }));
+
       setName('');
       setDescription('');
       setModelFiles([]);
-      showAlert('Model(s) uploaded successfully', 'success'); // Show success message
-      handleClose(); // Close the modal after submitting
+      showAlert('Model(s) uploaded successfully', 'success');
+      handleClose();
     } catch (error) {
-      showAlert('Failed to upload model(s). Please try again later.', 'error'); // Show error message
+      showAlert('Failed to upload model(s). Please try again later.', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,6 +95,7 @@ const UploadModels = ({ open, handleClose }) => {
               fullWidth
               required
               margin="normal"
+              disabled={isLoading}
             />
             <TextField
               label="Description"
@@ -123,31 +104,37 @@ const UploadModels = ({ open, handleClose }) => {
               fullWidth
               required
               margin="normal"
+              disabled={isLoading}
             />
-            <div {...getRootProps()} style={{
-              border: '2px dashed #ccc',
-              padding: '20px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              marginTop: '20px'
-            }}>
-              <input {...getInputProps()} />
-              {modelFiles.length ? (
+            <div
+              {...getRootProps()}
+              style={{
+                border: '2px dashed #ccc',
+                padding: '20px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                marginTop: '20px',
+                opacity: isLoading ? 0.5 : 1,
+                pointerEvents: isLoading ? 'none' : 'auto',
+              }}
+            >
+              <input {...getInputProps()} disabled={isLoading} />
+              {isLoading ? (
+                <CircularProgress />
+              ) : modelFiles.length ? (
                 <Typography>{modelFiles.map(file => file.name).join(', ')}</Typography>
               ) : (
                 <Typography>Drag & drop .glb files here, or click to select</Typography>
               )}
             </div>
-            {modelFiles.map((file, index) => (
-              <div key={index} style={{ marginTop: '20px', textAlign: 'center' }}>
-                <Typography>Preview {file.name}:</Typography>
-                {file.type === 'model/gltf-binary' && (
-                  <ModelPreview file={file} />
-                )}
-              </div>
-            ))}
-            <Button type="submit" variant="contained" color="primary" style={{ marginTop: '20px' }}>
-              Upload
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginTop: '20px' }}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Uploading...' : 'Upload'}
             </Button>
           </form>
         </Box>
