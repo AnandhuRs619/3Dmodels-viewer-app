@@ -9,7 +9,7 @@ import { CircularProgress, Box } from '@mui/material';
 const Model = ({ url }) => {
   const { scene } = useGLTF(url);
   scene.traverse((node) => {
-    if (node.isMesh) node.castShadow = true;
+    if (node.isMesh)node.castShadow = true;
   });
 //   eslint-disable-next-line react/no-unknown-property
   return <primitive object={scene} scale={0.4} />;
@@ -27,7 +27,7 @@ const ModelViewer = ({ modelUrl }) => {
         camera={{ position: [0, 0, 5], fov: 50 }}
         style={{ background: 'gray' }}
       >
-        <ambientLight intensity={1.5} />
+        <ambientLight intensity={1.5}/>
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} castShadow />
         <pointLight position={[-10, -10, -10]} />
         <OrbitControls />

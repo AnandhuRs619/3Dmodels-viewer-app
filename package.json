@@ -22,7 +22,6 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-loader-spinner": "^6.1.6",
-    "react-spinners": "^0.13.8",
     "three": "^0.164.1"
   },
   "devDependencies": {
