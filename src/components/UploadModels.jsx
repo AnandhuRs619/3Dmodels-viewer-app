@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, TextField, Modal, Box, Typography, IconButton, CircularProgress } from '@mui/material';
 import { db, storage } from '../db/FirebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
@@ -6,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useDropzone } from 'react-dropzone';
 import CloseIcon from '@mui/icons-material/Close';
 import useAlert from '../hooks/useAlert';
-import ModelPreview from './ModelPreview';
+
 
 const style = {
   position: 'absolute',
@@ -48,7 +49,7 @@ const UploadModels = ({ open, handleClose }) => {
 
       const downloadURLs = await Promise.all(uploadTasks);
 
-      await Promise.all(downloadURLs.map((url, index) => {
+      await Promise.all(downloadURLs.map((url) => {
         return addDoc(collection(db, 'models'), {
           name,
           description,
@@ -110,7 +111,7 @@ const UploadModels = ({ open, handleClose }) => {
               {...getRootProps()}
               style={{
                 border: '2px dashed #ccc',
-                padding: '20px',
+                padding: '50px',
                 textAlign: 'center',
                 cursor: 'pointer',
                 marginTop: '20px',
@@ -143,5 +144,9 @@ const UploadModels = ({ open, handleClose }) => {
     </>
   );
 };
-
+UploadModels.propTypes = {
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired,
+  };
+  
 export default UploadModels;

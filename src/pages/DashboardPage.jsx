@@ -5,6 +5,7 @@ import { Grid, Typography } from "@mui/material";
 import ModelCard from "../components/ModelCard";
 import { db } from "../db/FirebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import { RotatingLines } from "react-loader-spinner";
 
 export const DashboardPage = () => {
   const [models, setModels] = useState([]);
@@ -15,7 +16,7 @@ export const DashboardPage = () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'models'));
         const modelsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        console.log(modelsData)
+        console.log(modelsData);
         setModels(modelsData);
       } catch (error) {
         console.error("Error fetching models: ", error);
@@ -33,9 +34,17 @@ export const DashboardPage = () => {
       <UploadModels />
       <Grid container spacing={3} style={{ padding: '20px' }}>
         {loading ? (
-          <Typography variant="h6" component="p" style={{ margin: '20px auto' }}>
-            Loading models...
-          </Typography>
+          <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <RotatingLines
+              visible={true}  
+              height="96"
+              width="96"
+              color="grey"
+              strokeWidth="5"
+              animationDuration="0.75"
+              ariaLabel="rotating-lines-loading"
+            />
+          </Grid>
         ) : models.length === 0 ? (
           <Typography variant="h6" component="p" style={{ margin: '20px auto' }}>
             No models have been added yet.

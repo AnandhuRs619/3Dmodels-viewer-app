@@ -51,7 +51,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Navbar = () => {
     const [modalOpen, setModalOpen] = useState(false);
-
     const handleOpen = () => setModalOpen(true);
     const handleClose = () => setModalOpen(false);
   return (
