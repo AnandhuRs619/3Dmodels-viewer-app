@@ -62,6 +62,7 @@ const UploadModels = ({ open, handleClose }) => {
       setModelFiles([]);
       showAlert('Model(s) uploaded successfully', 'success');
       handleClose();
+      window.location.reload();
     } catch (error) {
       showAlert('Failed to upload model(s). Please try again later.', 'error');
     } finally {
