@@ -9,7 +9,11 @@ import Button from '@mui/material/Button';
 import { Add } from '@mui/icons-material';
 import UploadModels from './UploadModels';
 import { useState } from 'react';
-import logo from '../../public/unnamed.png';
+import logo from '/unnamed.png';
+import { Grid, IconButton } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -18,7 +22,7 @@ const Search = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginRight: theme.spacing(),
+  marginRight: theme.spacing(2),
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
@@ -52,8 +56,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Navbar = ({ setSearchTerm }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const handleOpen = () => setModalOpen(true);
   const handleClose = () => setModalOpen(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -63,29 +70,76 @@ const Navbar = ({ setSearchTerm }) => {
     <>
       <AppBar position="static" sx={{ backgroundColor: 'black' }}>
         <Toolbar>
-          <img src={logo} alt="logo" style={{ height: 40, marginRight: 16 }} />
-          <Typography variant="h6" noWrap sx={{ flexGrow: 0, color: 'red' }}>
-            3D Model Viewer
-          </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={handleSearchChange}
-            />
-          </Search>
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<Add />}
-            sx={{ color: 'white', ml: 'auto', mr: '70px' }}
-            onClick={handleOpen}
-          >
-            Upload
-          </Button>
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
+              <img src={logo} alt="logo" style={{ height: 40, marginRight: 16 }} />
+            </Grid>
+            <Grid item xs>
+              <Typography variant="h6" noWrap sx={{ color: 'red' }}>
+                3D Model Viewer
+              </Typography>
+            </Grid>
+            {isMobile ? (
+              <>
+                <Grid item>
+                  <IconButton color="inherit" onClick={() => setMenuOpen(!menuOpen)}>
+                    <MenuIcon />
+                  </IconButton>
+                </Grid>
+                {menuOpen && (
+                  <Grid item xs={12}>
+                    <Search>
+                      <SearchIconWrapper>
+                        <SearchIcon />
+                      </SearchIconWrapper>
+                      <StyledInputBase
+                        placeholder="Search…"
+                        inputProps={{ 'aria-label': 'search' }}
+                        onChange={handleSearchChange}
+                        fullWidth
+                      />
+                    </Search>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<Add />}
+                      sx={{ color: 'white', mt: 2 }}
+                      onClick={handleOpen}
+                      fullWidth
+                    >
+                      Upload
+                    </Button>
+                  </Grid>
+                )}
+              </>
+            ) : (
+              <>
+                <Grid item xs>
+                  <Search>
+                    <SearchIconWrapper>
+                      <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      placeholder="Search…"
+                      inputProps={{ 'aria-label': 'search' }}
+                      onChange={handleSearchChange}
+                    />
+                  </Search>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<Add />}
+                    sx={{ color: 'white', ml: 'auto', mr: '70px' }}
+                    onClick={handleOpen}
+                  >
+                    {isMobile ? null : 'Upload'}
+                  </Button>
+                </Grid>
+              </>
+            )}
+          </Grid>
         </Toolbar>
       </AppBar>
       <UploadModels open={modalOpen} handleClose={handleClose} />

@@ -15,7 +15,7 @@ const Model = ({ url }) => {
 //   eslint-disable-next-line react/no-unknown-property
 return (
     <Suspense fallback={<CircularProgress color="#4fa94d" />}>
-      <primitive object={scene} scale={0.8} />;
+      <primitive object={scene} scale={2} />;
     </Suspense>
   );
 };
