@@ -1,4 +1,4 @@
-
+/* eslint-disable react/prop-types */
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import { Add } from '@mui/icons-material';
 import UploadModels from './UploadModels';
 import { useState } from 'react';
+import logo from '../../public/unnamed.png';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -49,33 +50,46 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const Navbar = () => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const handleOpen = () => setModalOpen(true);
-    const handleClose = () => setModalOpen(false);
+const Navbar = ({ setSearchTerm }) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const handleOpen = () => setModalOpen(true);
+  const handleClose = () => setModalOpen(false);
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   return (
     <>
-    <AppBar position="static" sx={{ backgroundColor: 'black' }}>
-      <Toolbar>
-      <Typography variant="h6" noWrap sx={{ flexGrow: 0, color: 'red' }}>
-          3D Model Viewer 
-        </Typography>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
-        <Button  variant="contained" color="error" startIcon={<Add />} sx={{ color: 'white', ml: 'auto' ,mr:'70px'}} onClick={handleOpen}>
-          Upload
-        </Button>
-      </Toolbar>
-    </AppBar>
-    <UploadModels open={modalOpen} handleClose={handleClose} />
-   </>
+      <AppBar position="static" sx={{ backgroundColor: 'black' }}>
+        <Toolbar>
+          <img src={logo} alt="logo" style={{ height: 40, marginRight: 16 }} />
+          <Typography variant="h6" noWrap sx={{ flexGrow: 0, color: 'red' }}>
+            3D Model Viewer
+          </Typography>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search…"
+              inputProps={{ 'aria-label': 'search' }}
+              onChange={handleSearchChange}
+            />
+          </Search>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Add />}
+            sx={{ color: 'white', ml: 'auto', mr: '70px' }}
+            onClick={handleOpen}
+          >
+            Upload
+          </Button>
+        </Toolbar>
+      </AppBar>
+      <UploadModels open={modalOpen} handleClose={handleClose} />
+    </>
   );
 };
 
