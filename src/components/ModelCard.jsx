@@ -1,15 +1,42 @@
+import  { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import ModelViewer from './ModelViewer';
 
 const ModelCard = ({ model, onView }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true); // Start loading when the component mounts or the model changes
+  }, [model.modelUrl]);
+
+  const handleModelLoad = () => {
+    setIsLoading(false); // Model loaded successfully
+  };
+
+  const handleModelError = () => {
+    setIsLoading(false); // Handle error case
+  };
+
   return (
     <Card>
-      <div style={{ height: '200px', padding: '5px' }}>
-        <ModelViewer modelUrl={model.modelUrl} />
+      <div style={{ height: '200px', padding: '5px', position: 'relative' }}>
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress />
+          </div>
+        )}
+        <div style={{ visibility: isLoading ? 'hidden' : 'visible', height: '100%' }}>
+          <ModelViewer 
+            modelUrl={model.modelUrl} 
+            onLoad={handleModelLoad} 
+            onError={handleModelError} 
+          />
+        </div>
       </div>
       <CardContent style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>

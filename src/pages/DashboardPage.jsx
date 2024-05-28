@@ -155,7 +155,7 @@ export const DashboardPage = () => {
               <CloseIcon />
             </IconButton>
             <Box sx={{ height: 'calc(100% - 32px)', paddingTop: '32px' }}>
-              <ModelViewer modelUrl={selectedModel.modelUrl} />
+            <ModelViewer modelUrl={selectedModel.modelUrl} onClose={handleClose} />
             </Box>
           </Box>
         </Modal>
