@@ -1,29 +1,36 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Button, TextField, Modal, Box, Typography, IconButton, CircularProgress } from '@mui/material';
-import { db, storage } from '../db/FirebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { useDropzone } from 'react-dropzone';
-import CloseIcon from '@mui/icons-material/Close';
-import useAlert from '../hooks/useAlert';
-
+import { useState } from "react";
+import PropTypes from "prop-types";
+import {
+  Button,
+  TextField,
+  Modal,
+  Box,
+  Typography,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
+import { db, storage } from "../db/FirebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useDropzone } from "react-dropzone";
+import CloseIcon from "@mui/icons-material/Close";
+import useAlert from "../hooks/useAlert";
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 600,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: "background.paper",
+  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
 
 const UploadModels = ({ open, handleClose }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [modelFiles, setModelFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { showAlert, AlertComponent } = useAlert();
@@ -34,37 +41,41 @@ const UploadModels = ({ open, handleClose }) => {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'model/gltf-binary': ['.glb'] },
-    multiple: true
+    accept: { "model/gltf-binary": [".glb"] },
+    multiple: true,
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const uploadTasks = modelFiles.map(file => {
+      const uploadTasks = modelFiles.map((file) => {
         const storageRef = ref(storage, `models/${file.name}`);
-        return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+        return uploadBytes(storageRef, file).then((snapshot) =>
+          getDownloadURL(snapshot.ref)
+        );
       });
 
       const downloadURLs = await Promise.all(uploadTasks);
 
-      await Promise.all(downloadURLs.map((url) => {
-        return addDoc(collection(db, 'models'), {
-          name,
-          description,
-          modelUrl: url
-        });
-      }));
+      await Promise.all(
+        downloadURLs.map((url) => {
+          return addDoc(collection(db, "models"), {
+            name,
+            description,
+            modelUrl: url,
+          });
+        })
+      );
 
-      setName('');
-      setDescription('');
+      setName("");
+      setDescription("");
       setModelFiles([]);
-      showAlert('Model(s) uploaded successfully', 'success');
+      showAlert("Model(s) uploaded successfully", "success");
       handleClose();
       window.location.reload();
     } catch (error) {
-      showAlert('Failed to upload model(s). Please try again later.', 'error');
+      showAlert("Failed to upload model(s). Please try again later.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -85,11 +96,11 @@ const UploadModels = ({ open, handleClose }) => {
           <IconButton
             aria-label="close"
             onClick={handleClose}
-            sx={{ position: 'absolute', top: 8, right: 8 }}
+            sx={{ position: "absolute", top: 8, right: 8 }}
           >
             <CloseIcon />
           </IconButton>
-          <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
+          <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
             <TextField
               label="Name"
               value={name}
@@ -111,32 +122,36 @@ const UploadModels = ({ open, handleClose }) => {
             <div
               {...getRootProps()}
               style={{
-                border: '2px dashed #ccc',
-                padding: '50px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                marginTop: '20px',
+                border: "2px dashed #ccc",
+                padding: "50px",
+                textAlign: "center",
+                cursor: "pointer",
+                marginTop: "20px",
                 opacity: isLoading ? 0.5 : 1,
-                pointerEvents: isLoading ? 'none' : 'auto',
+                pointerEvents: isLoading ? "none" : "auto",
               }}
             >
               <input {...getInputProps()} disabled={isLoading} />
               {isLoading ? (
                 <CircularProgress />
               ) : modelFiles.length ? (
-                <Typography>{modelFiles.map(file => file.name).join(', ')}</Typography>
+                <Typography>
+                  {modelFiles.map((file) => file.name).join(", ")}
+                </Typography>
               ) : (
-                <Typography>Drag & drop .glb files here, or click to select</Typography>
+                <Typography>
+                  Drag & drop .glb files here, or click to select
+                </Typography>
               )}
             </div>
             <Button
               type="submit"
               variant="contained"
               color="primary"
-              style={{ marginTop: '20px' }}
+              style={{ marginTop: "20px" }}
               disabled={isLoading}
             >
-              {isLoading ? 'Uploading...' : 'Upload'}
+              {isLoading ? "Uploading..." : "Upload"}
             </Button>
           </form>
         </Box>
@@ -146,8 +161,8 @@ const UploadModels = ({ open, handleClose }) => {
   );
 };
 UploadModels.propTypes = {
-    open: PropTypes.bool.isRequired,
-    handleClose: PropTypes.func.isRequired,
-  };
-  
+  open: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+};
+
 export default UploadModels;

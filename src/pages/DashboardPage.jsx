@@ -1,26 +1,33 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import UploadModels from "../components/UploadModels";
-import { Grid, Typography, Button, Box, Modal, IconButton } from "@mui/material";
+import {
+  Grid,
+  Typography,
+  Button,
+  Box,
+  Modal,
+  IconButton,
+} from "@mui/material";
 import ModelCard from "../components/ModelCard";
 import { db } from "../db/FirebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { RotatingLines } from "react-loader-spinner";
-import ModelViewer from "../components/ModelViewer"; // Ensure this import is correct
-import CloseIcon from '@mui/icons-material/Close';
+import ModelViewer from "../components/ModelViewer";
+import CloseIcon from "@mui/icons-material/Close";
 
 const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '90%',
-  height: '90%',
-  bgcolor: 'background.paper',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "90%",
+  height: "90%",
+  bgcolor: "background.paper",
   boxShadow: 24,
   p: 2,
-  borderRadius: '8px',
-  outline: 'none', // Added to remove default outline
+  borderRadius: "8px",
+  outline: "none",
 };
 
 export const DashboardPage = () => {
@@ -34,8 +41,11 @@ export const DashboardPage = () => {
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'models'));
-        const modelsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const querySnapshot = await getDocs(collection(db, "models"));
+        const modelsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setModels(modelsData);
       } catch (error) {
         console.error("Error fetching models: ", error);
@@ -47,19 +57,27 @@ export const DashboardPage = () => {
     fetchModels();
   }, []);
 
-  const filteredModels = models.filter(model => 
-    model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    model.description.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter models based on search term
+
+  const filteredModels = models.filter(
+    (model) =>
+      model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      model.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Paginate models
   const indexOfLastModel = currentPage * modelsPerPage;
   const indexOfFirstModel = indexOfLastModel - modelsPerPage;
-  const currentModels = filteredModels.slice(indexOfFirstModel, indexOfLastModel);
+  const currentModels = filteredModels.slice(
+    indexOfFirstModel,
+    indexOfLastModel
+  );
 
   const totalPages = Math.ceil(filteredModels.length / modelsPerPage);
   const maxPageNumbersToShow = 5;
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // Function to handle view model
   const handleView = (model) => {
     setSelectedModel(model);
   };
@@ -67,7 +85,7 @@ export const DashboardPage = () => {
   const handleClose = () => {
     setSelectedModel(null);
   };
-
+  // Render page numbers for pagination
   const renderPageNumbers = () => {
     const pageNumbers = [];
     const halfPageNumbersToShow = Math.floor(maxPageNumbersToShow / 2);
@@ -83,7 +101,11 @@ export const DashboardPage = () => {
 
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(
-        <Button key={i} onClick={() => paginate(i)} variant={i === currentPage ? 'contained' : 'outlined'}>
+        <Button
+          key={i}
+          onClick={() => paginate(i)}
+          variant={i === currentPage ? "contained" : "outlined"}
+        >
           {i}
         </Button>
       );
@@ -96,11 +118,20 @@ export const DashboardPage = () => {
     <>
       <Navbar setSearchTerm={setSearchTerm} />
       <UploadModels />
-      <Grid container spacing={3} style={{ padding: '20px' }}>
+      <Grid container spacing={3} style={{ padding: "20px" }}>
         {loading ? (
-          <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <Grid
+            item
+            xs={12}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+            }}
+          >
             <RotatingLines
-              visible={true}  
+              visible={true}
               height="96"
               width="96"
               color="grey"
@@ -110,7 +141,11 @@ export const DashboardPage = () => {
             />
           </Grid>
         ) : currentModels.length === 0 ? (
-          <Typography variant="h6" component="p" style={{ margin: '20px auto' }}>
+          <Typography
+            variant="h6"
+            component="p"
+            style={{ margin: "20px auto" }}
+          >
             No models match your search.
           </Typography>
         ) : (
@@ -122,40 +157,63 @@ export const DashboardPage = () => {
         )}
       </Grid>
       {!loading && filteredModels.length > modelsPerPage && (
-        <Box style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+        <Box
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "20px 0",
+          }}
+        >
           <Button onClick={() => paginate(1)} disabled={currentPage === 1}>
             First
           </Button>
-          <Button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+          <Button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
             Previous
           </Button>
           {renderPageNumbers()}
-          <Button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+          <Button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
             Next
           </Button>
-          <Button onClick={() => paginate(totalPages)} disabled={currentPage === totalPages}>
+          <Button
+            onClick={() => paginate(totalPages)}
+            disabled={currentPage === totalPages}
+          >
             Last
           </Button>
         </Box>
       )}
       {selectedModel && (
-        <Modal open={true} onClose={handleClose} aria-labelledby="model-viewer-modal" aria-describedby="model-viewer-modal-description">
+        <Modal
+          open={true}
+          onClose={handleClose}
+          aria-labelledby="model-viewer-modal"
+          aria-describedby="model-viewer-modal-description"
+        >
           <Box sx={modalStyle}>
             <IconButton
               aria-label="close"
               onClick={handleClose}
               sx={{
-                position: 'absolute',
+                position: "absolute",
                 right: 16,
                 top: 16,
-                color: 'black',
+                color: "black",
                 zIndex: 1,
               }}
             >
               <CloseIcon />
             </IconButton>
-            <Box sx={{ height: 'calc(100% - 32px)', paddingTop: '32px' }}>
-            <ModelViewer modelUrl={selectedModel.modelUrl} onClose={handleClose} />
+            <Box sx={{ height: "calc(100% - 32px)", paddingTop: "32px" }}>
+              <ModelViewer
+                modelUrl={selectedModel.modelUrl}
+                onClose={handleClose}
+              />
             </Box>
           </Box>
         </Modal>

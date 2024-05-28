@@ -1,11 +1,11 @@
-import  { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import ModelViewer from './ModelViewer';
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import ModelViewer from "./ModelViewer";
+import { Blocks } from "react-loader-spinner";
 
 const ModelCard = ({ model, onView }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,21 +24,54 @@ const ModelCard = ({ model, onView }) => {
 
   return (
     <Card>
-      <div style={{ height: '200px', padding: '5px', position: 'relative' }}>
+      <div
+        style={{
+          height: "200px",
+          padding: "5px",
+          position: "relative",
+          backgroundColor: "gray",
+        }}
+      >
         {isLoading && (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <Blocks
+              height="80"
+              width="80"
+              color="#4fa94d"
+              ariaLabel="blocks-loading"
+              wrapperStyle={{}}
+              wrapperClass="blocks-wrapper"
+              visible={true}
+            />
           </div>
         )}
-        <div style={{ visibility: isLoading ? 'hidden' : 'visible', height: '100%' }}>
-          <ModelViewer 
-            modelUrl={model.modelUrl} 
-            onLoad={handleModelLoad} 
-            onError={handleModelError} 
+        <div
+          style={{
+            visibility: isLoading ? "hidden" : "visible",
+            height: "100%",
+          }}
+        >
+          <ModelViewer
+            modelUrl={model.modelUrl}
+            onLoad={handleModelLoad}
+            onError={handleModelError}
           />
         </div>
       </div>
-      <CardContent style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <CardContent
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <div>
           <Typography gutterBottom variant="h5" component="div">
             {model.name}
@@ -47,7 +80,11 @@ const ModelCard = ({ model, onView }) => {
             {model.description}
           </Typography>
         </div>
-        <Button variant="contained" color="primary" onClick={() => onView(model)}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => onView(model)}
+        >
           View
         </Button>
       </CardContent>
